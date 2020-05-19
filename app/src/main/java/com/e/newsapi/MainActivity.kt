@@ -1,8 +1,15 @@
 package com.e.newsapi
 
+//import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.TextView
+//import android.support.v7.widget.DividerItemDecoration
+//import android.support.v7.widget.LinearLayoutManager
+//import android.support.v7.widget.RecyclerView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -30,8 +37,20 @@ class MainActivity : AppCompatActivity() {
 
             // 通信が成功したときの処理
             override fun onResponse(call: Call<ResponseData>?, response: Response<ResponseData>?) {
-                // 紐づけたTextVeiwに取得したデータをそのまま表示
-                findViewById<TextView>(R.id.textview).text = response?.body().toString()
+                // レスポンスのnullチェック
+                val res = response?.body() ?: return
+
+                // NewsAdapterへ渡すデータセットを作成
+                val dataset = res.articles.filter { !it.content.isNullOrEmpty() }
+
+                findViewById<RecyclerView>(R.id.list).apply(){
+                    // リストの罫線を設定
+                    addItemDecoration(DividerItemDecoration(this@MainActivity, DividerItemDecoration.VERTICAL))
+                    // 生成したLinearLayoutManagerをセット
+                    layoutManager = LinearLayoutManager(this@MainActivity)
+                    // RecyclerViewの生成したNewsAdapter をセット
+                    adapter = NewsAdapter(this@MainActivity, dataset)
+                }
             }
         })
     }
